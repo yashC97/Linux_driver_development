@@ -2,6 +2,8 @@
 
 obj-m+=simple.o #obj-m defines lodable module goal
 
+#obj-y - used to make built-in object goal
+
 all:	
 	make -C /lib/modules/$(shell uname -r)/build/ M=$(PWD) modules
 	#we here use the make provided with the kernel and out modules is just appended to it . -C changes directory to that of first argument; M-where the project is and modueles is the name of the taret in the kernel make file 
