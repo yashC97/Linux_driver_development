@@ -87,7 +87,8 @@ static ssize_t charDriverWrite(struct file *filep, const char *buffer, size_t le
 		printk(KERN_WARNING "No space in Buffer to write data!\n");
 		return 0;
 	}
-	bufferMemory[bufferPointer] = *buffer;
+	//bufferMemory[bufferPointer] = *buffer;
+	copy_from_user(bufferMemory, buffer, len);
 	bufferPointer++;
 	return len;
 }
@@ -100,6 +101,7 @@ static ssize_t charDriverRead(struct file *filep, char *buffer, size_t len, loff
 		return 0;
 	}
 	copy_to_user(buffer, bufferMemory, len);
+//	buffer[0] = bufferMemory[0];
 	bufferPointer -= len;
 	return len;
 }
