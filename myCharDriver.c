@@ -1,29 +1,37 @@
-#include<linux/modules.h>
+#include<linux/module.h>
 #include<linux/init.h>
 #include<linux/fs.h>
 #include<linux/device.h>
 #include<linux/kernel.h>
 #include<linux/slab.h>
+#include<linux/uaccess.h>
 
-DEVICE_NAME = "myCharDevice"
-MODULE_NAME = "myCharDriver"
-CLASS_NAME = "myCharClass"
-
+#define DEVICE_NAME "myCharDevice"
+#define MODULE_NAME "myCharDriver"
+#define CLASS_NAME "myCharClass"
+MODULE_LICENSE("GPL");
 
 static char *bufferMemory;
 static int bufferPointer;
 static struct class *pmyCharClass;
 static struct device *pmyCharDevice;
+int majorNumber = 0;
+
+static int charDriverOpen(struct inode *inodep, struct file *filep);
+static int charDriverClose(struct inode *inodep, struct file *filep);
+static ssize_t charDriverWrite(struct file *filep, const char *buffer, size_t len, loff_t *offset);
+static ssize_t charDriverRead(struct file *filep, char *buffer, size_t len, loff_t *offset);
+static int charDriverEntry(void);
+static void charDriverExit(void);
 
 static struct file_operations fops = 
 {
-	.open = charDriverOpen;
-	.release = charDriverClose;
-	.read = charDriverRead;
-	.write = charDriverWrite;
-}
+	.open = charDriverOpen,
+	.release = charDriverClose,
+	.read = charDriverRead,
+	.write = charDriverWrite,
+};
 
-int majorNumber = 0;
 
 static int charDriverEntry()
 {
@@ -55,13 +63,15 @@ static int charDriverOpen(struct inode *inodep, struct file *filep)
 {
 	printk(KERN_INFO "INFO : CHARATER DRIVER OPENED\n");
 	bufferMemory = kmalloc(5,GFP_KERNEL);
-	bufferPointer = 0;	
+	bufferPointer = 0;
+	return 0;	
 }
 
 static int charDriverClose(struct inode *inodep, struct file *filep)
 {
 	kfree(bufferMemory);
 	printk(KERN_INFO "INFO : CHARACTER DRIVER CLOSED\n");
+	return 0;
 }
 
 static ssize_t charDriverWrite(struct file *filep, const char *buffer, size_t len, loff_t *offset)
@@ -82,7 +92,7 @@ static ssize_t charDriverWrite(struct file *filep, const char *buffer, size_t le
 	return len;
 }
 
-static ssize_t charDriverRead(struct file *filep, const char *buffer, size_t len, loff_t *offset)
+static ssize_t charDriverRead(struct file *filep, char *buffer, size_t len, loff_t *offset)
 {
 	if(len > 4 || len > bufferPointer)
 	{
@@ -93,3 +103,7 @@ static ssize_t charDriverRead(struct file *filep, const char *buffer, size_t len
 	bufferPointer -= len;
 	return len;
 }
+
+
+module_init(charDriverEntry);
+module_exit(charDriverExit);
