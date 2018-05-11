@@ -9,7 +9,10 @@
 #define DEVICE_NAME "myCharDevice"
 #define MODULE_NAME "myCharDriver"
 #define CLASS_NAME "myCharClass"
+
 MODULE_LICENSE("GPL");
+MODULE_AUTHOR("YASH BHATT");
+MODULE_VERSION(".01");
 
 static char *bufferMemory;
 static int bufferPointer;
@@ -109,3 +112,4 @@ static ssize_t charDriverRead(struct file *filep, char *buffer, size_t len, loff
 
 module_init(charDriverEntry);
 module_exit(charDriverExit);
+
