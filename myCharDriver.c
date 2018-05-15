@@ -10,6 +10,7 @@
 #include<linux/kernel.h>
 #include<linux/slab.h>
 #include<linux/uaccess.h>
+#include<linux/stat.h>
 
 #define DEVICE_NAME "myCharDevice"
 #define MODULE_NAME "myCharDriver"
@@ -102,6 +103,11 @@ static void charDriverExit()
 
 static int charDriverOpen(struct inode *inodep, struct file *filep)
 {
+	if ((filep->f_flags & O_ACCMODE) != O_RDWR)
+	{
+		printk(KERN_ALERT "WARNING : This driver can only be opened in both read and write mode");
+		return -1;
+	}
 	printk(KERN_INFO "INFO : CHARATER DRIVER OPENED\n");
 	bufferMemory = kmalloc(15,GFP_KERNEL);
 	bufferPointer = 0;
