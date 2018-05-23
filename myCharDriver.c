@@ -11,6 +11,7 @@
 #include<linux/slab.h>
 #include<linux/uaccess.h>
 #include<linux/stat.h>
+#include"ioctrl.h"
 
 #define DEVICE_NAME "myCharDevice"
 #define MODULE_NAME "myCharDriver"
@@ -38,7 +39,7 @@ static ssize_t attrShowData(struct device*, struct device_attribute*, char*);
 static ssize_t attrStoreData(struct device*, struct device_attribute*, const char*, size_t);
 static ssize_t attrShowBuffer(struct device*, struct device_attribute*, char*);
 static ssize_t attrStoreBuffer(struct device*, struct device_attribute*, const char*, size_t);
-
+static long charDriverCtrl(struct file *filep, unsigned int command, unsigned long argument);
 
 /* The following function is called when the file placed on the sysfs is accessed for read*/
 static ssize_t attrShowData(struct device* pDev, struct device_attribute* attr, char* buffer)
@@ -108,6 +109,7 @@ static struct file_operations fops =
 	.release = charDriverClose,
 	.read = charDriverRead,
 	.write = charDriverWrite,
+	.unlocked_ioctl = charDriverCtrl,
 };
 
 
@@ -189,7 +191,28 @@ static ssize_t charDriverRead(struct file *filep, char *buffer, size_t len, loff
 	bufferPointer -= len;
 	return len;
 }
-
+static long charDriverCtrl(struct file *filep, unsigned int command, unsigned long argument)
+{
+	bufferSizeStruct sizeStruct;
+	printk(KERN_INFO "INFO: IOCONTROL called\n");
+	switch(command)
+	{
+		case SET_BUFFER_SIZE:
+			copy_from_user((bufferSizeStruct *)argument, &sizeStruct, sizeof(bufferSizeStruct));
+			bufferSize = sizeStruct.bufferSize;
+			printk(KERN_INFO "INFO: Updated buffer size \n");
+			break;
+		case READ_BUFFER_SIZE:
+			sizeStruct.bufferSize = bufferSize;
+			copy_to_user(&sizeStruct, (bufferSizeStruct *)argument, sizeof(bufferSizeStruct));
+			printk(KERN_INFO "INFO: BufferSize passed to user\n");
+			break;
+		default:
+			printk(KERN_WARNING "WARNING: Invalid IOCTRL ARGUMENT!\n");
+			return -1;
+	}
+	return 0;
+}
 
 module_init(charDriverEntry);
 module_exit(charDriverExit);
