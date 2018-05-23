@@ -17,6 +17,7 @@
 #define CLASS_NAME "myCharClass"
 
 MODULE_LICENSE("GPL");
+//MODULE_LICENSE("Proprietary");
 MODULE_AUTHOR("YASH BHATT");
 MODULE_VERSION(".01");
 
@@ -110,7 +111,7 @@ static struct file_operations fops =
 };
 
 
-static int charDriverEntry()
+static int __init charDriverEntry()
 {
 	majorNumber = register_chrdev(0, DEVICE_NAME, &fops);
 	if (majorNumber < 0)
@@ -132,7 +133,7 @@ static int charDriverEntry()
 	return 0;
 }
 
-static void charDriverExit()
+static void __exit charDriverExit()
 {
 	device_remove_file(pmyCharDevice, &dev_attr_Buffer);
 	device_remove_file(pmyCharDevice, &dev_attr_ShowData);
