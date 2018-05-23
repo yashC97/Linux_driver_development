@@ -3,6 +3,7 @@
 #include<fcntl.h>
 #include<unistd.h>
 #include"ioctrl.h"
+#include<sys/ioctl.h>
 
 bufferSizeStruct sizeStruct;
 
@@ -13,7 +14,7 @@ int main()
 	fp = open("/dev/myCharDevice",O_RDWR);
 	if (fp<0)
 		printf("Failed to open\n");
-	printf("attemptint to write 'A'\n");
+	printf("attemptint to write 'YASH'\n");
 	i = write(fp,"YASH",4);
 	if (i < 4 )
 	{

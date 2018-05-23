@@ -198,13 +198,13 @@ static long charDriverCtrl(struct file *filep, unsigned int command, unsigned lo
 	switch(command)
 	{
 		case SET_BUFFER_SIZE:
-			copy_from_user((bufferSizeStruct *)argument, &sizeStruct, sizeof(bufferSizeStruct));
+			copy_from_user(&sizeStruct, (bufferSizeStruct *)argument, sizeof(bufferSizeStruct));
 			bufferSize = sizeStruct.bufferSize;
 			printk(KERN_INFO "INFO: Updated buffer size \n");
 			break;
 		case READ_BUFFER_SIZE:
 			sizeStruct.bufferSize = bufferSize;
-			copy_to_user(&sizeStruct, (bufferSizeStruct *)argument, sizeof(bufferSizeStruct));
+			copy_to_user((bufferSizeStruct *)argument, &sizeStruct, sizeof(bufferSizeStruct));
 			printk(KERN_INFO "INFO: BufferSize passed to user\n");
 			break;
 		default:
