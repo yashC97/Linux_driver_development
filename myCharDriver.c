@@ -1,6 +1,8 @@
 /* @author : yash.bhatt
  * @Brief  : This module is an attempt to understand how the paramaters can be exposed to class fs and they can be used to modufy the behavior of the
  	     Code. Update : Added the ioctl function and also all the laod time kernel parameter
+	     * now in this branch we will see how register_chrdev can be replaced by other functions, increasing the length of code but giving 
+		better functionality *
  */
 
 #include<linux/module.h>
@@ -25,6 +27,8 @@ MODULE_VERSION(".01");
 static char *bufferMemory;
 static int bufferPointer;
 static int bufferSize = 15;
+static dev_t myChrDevid;
+static c_dev myChrDevCdev;
 static struct class *pmyCharClass;
 static struct device *pmyCharDevice;
 int majorNumber = 0;
@@ -115,19 +119,37 @@ static struct file_operations fops =
 
 static int __init charDriverEntry()
 {
-	majorNumber = register_chrdev(0, DEVICE_NAME, &fops);
-	if (majorNumber < 0)
+	int returnValue;
+	//majorNumber = register_chrdev(0, DEVICE_NAME, &fops);
+	
+	returnValue = alloc_chrdev_region(&myChrDevid, 0, 1, DEVICE_NAME); 
+	/* This function takes 4 arguments - dev_t address, start of minor number, range/count of minor number, Name; Note - unlike register_chrdev fops have not
+		yet been tied to the major number */
+	
+	if (returnValue < 0)
 	{
-		printk(KERN_ALERT "ERROR : Can not register device. Did not get major number!\n");
-		return majorNumber;
+		printk(KERN_ERROR "ERROR : can not aquire major number! error %d",returnValue);
+		return -1;
 	}
 	printk(KERN_INFO "Aquired Major Number!\n");
+	
 	// Now we will create class for this device
 	pmyCharClass = class_create(THIS_MODULE,CLASS_NAME);
 	printk(KERN_INFO "Class created!\n");
-	// check for error | Not added here will add later 
+	
 	pmyCharDevice = device_create(pmyCharClass, NULL, MKDEV(majorNumber,0),NULL,DEVICE_NAME);
 	printk(KERN_INFO "Device created!\n");
+	
+	/* We now have created the class and we have aquired major numer. But we have not yet tied out created fileops with anything. 
+		We will do that now */
+	returnValue = cdev_init(cdev)		
+
+	chdev_init(&myChrDevCdev,&fops);
+	/* this function inits the c_dev structure with memset 0 and then does basic konject setup and then adds fops to cdev struct*/
+
+	chdev_add(&myChrDevCdev, myChrDevid, 1);
+	/* this function adds the cdev to the kernel structure so that it becomes available for the users to use it */
+
 	printk(KERN_INFO "Now We will create the attribute entry in sysfs\n");
 	/* the function used is device_create_file(struct device *, struct device_attribute*) */
 	device_create_file(pmyCharDevice, &dev_attr_ShowData);		// The second argumnet is the structure created by the DEVICE_ATTR macro
