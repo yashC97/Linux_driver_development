@@ -33,7 +33,7 @@ static struct file_operations fops =
 };
 
 
-static int charDriverEntry()
+static int __init charDriverEntry()
 {
 	majorNumber = register_chrdev(0, DEVICE_NAME, &fops);
 	if (majorNumber < 0)
@@ -51,7 +51,7 @@ static int charDriverEntry()
 	return 0;
 }
 
-static void charDriverExit()
+static void __exit charDriverExit()
 {
 	device_destroy(pmyCharClass, MKDEV(majorNumber,0));
 	class_unregister(pmyCharClass);
