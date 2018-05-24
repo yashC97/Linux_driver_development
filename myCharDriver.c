@@ -1,6 +1,6 @@
 /* @author : yash.bhatt
  * @Brief  : This module is an attempt to understand how the paramaters can be exposed to class fs and they can be used to modufy the behavior of the
- 	     Code.
+ 	     Code. Update : Added the ioctl function and also all the laod time kernel parameter
  */
 
 #include<linux/module.h>
