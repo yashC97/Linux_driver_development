@@ -1,1 +1,0 @@
-cmd_/home/yash/yash/deviceDrivers/tmp/myCharDriver4.ko := ld -r -m elf_x86_64 -T ./scripts/module-common.lds --build-id  -o /home/yash/yash/deviceDrivers/tmp/myCharDriver4.ko /home/yash/yash/deviceDrivers/tmp/myCharDriver4.o /home/yash/yash/deviceDrivers/tmp/myCharDriver4.mod.o ;  true
