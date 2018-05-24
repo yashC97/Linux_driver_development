@@ -11,7 +11,7 @@ int main()
 {
 	int fp,i;
 	char c[5];
-	fp = open("/dev/myCharDevice",O_RDWR);
+	fp = open("/dev/myCharDriver",O_RDWR);
 	if (fp<0)
 		printf("Failed to open\n");
 	printf("attemptint to write 'YASH'\n");

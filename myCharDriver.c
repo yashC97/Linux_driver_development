@@ -14,6 +14,17 @@
 #include<linux/uaccess.h>
 #include<linux/stat.h>
 #include"ioctrl.h"
+#include<linux/cdev.h>
+
+#include <linux/module.h>
+#include <linux/version.h>
+#include <linux/kernel.h>
+#include <linux/types.h>
+#include <linux/kdev_t.h>
+#include <linux/fs.h>
+#include <linux/device.h>
+#include <linux/cdev.h>
+
 
 #define DEVICE_NAME "myCharDevice"
 #define MODULE_NAME "myCharDriver"
@@ -28,7 +39,7 @@ static char *bufferMemory;
 static int bufferPointer;
 static int bufferSize = 15;
 static dev_t myChrDevid;
-static c_dev myChrDevCdev;
+static struct cdev myChrDevCdev;
 static struct class *pmyCharClass;
 static struct device *pmyCharDevice;
 int majorNumber = 0;
@@ -128,11 +139,23 @@ static int __init charDriverEntry()
 	
 	if (returnValue < 0)
 	{
-		printk(KERN_ERROR "ERROR : can not aquire major number! error %d",returnValue);
+		printk(KERN_ALERT "ERROR : can not aquire major number! error %d",returnValue);
 		return -1;
 	}
-	printk(KERN_INFO "Aquired Major Number!\n");
+	printk(KERN_INFO "Aquired Major Number! : %d\n", MAJOR(myChrDevid));
 	
+	cdev_init(&myChrDevCdev,&fops);
+	/* this function inits the c_dev structure with memset 0 and then does basic konject setup and then adds fops to cdev struct*/
+
+	returnValue = cdev_add(&myChrDevCdev, myChrDevid, 1);
+	if (returnValue < 0)
+	{
+		printk(KERN_ALERT "Failed to add chdev \n");
+		return -1;
+	}
+	/* this function adds the cdev to the kernel structure so that it becomes available for the users to use it */
+
+
 	// Now we will create class for this device
 	pmyCharClass = class_create(THIS_MODULE,CLASS_NAME);
 	printk(KERN_INFO "Class created!\n");
@@ -142,14 +165,7 @@ static int __init charDriverEntry()
 	
 	/* We now have created the class and we have aquired major numer. But we have not yet tied out created fileops with anything. 
 		We will do that now */
-	returnValue = cdev_init(cdev)		
-
-	chdev_init(&myChrDevCdev,&fops);
-	/* this function inits the c_dev structure with memset 0 and then does basic konject setup and then adds fops to cdev struct*/
-
-	chdev_add(&myChrDevCdev, myChrDevid, 1);
-	/* this function adds the cdev to the kernel structure so that it becomes available for the users to use it */
-
+	//returnValue = cdev_init(cdev)		
 	printk(KERN_INFO "Now We will create the attribute entry in sysfs\n");
 	/* the function used is device_create_file(struct device *, struct device_attribute*) */
 	device_create_file(pmyCharDevice, &dev_attr_ShowData);		// The second argumnet is the structure created by the DEVICE_ATTR macro
@@ -165,6 +181,7 @@ static void __exit charDriverExit()
 	class_unregister(pmyCharClass);
 	class_destroy(pmyCharClass);
 	unregister_chrdev(majorNumber,DEVICE_NAME);
+	printk(KERN_INFO "Unmounting module done !\n");
 }
 
 static int charDriverOpen(struct inode *inodep, struct file *filep)
