@@ -29,6 +29,7 @@
 #define DEVICE_NAME "myCharDevice"
 #define MODULE_NAME "myCharDriver"
 #define CLASS_NAME "myCharClass"
+#define CLASS_NAME2 "myCharClass2"
 
 MODULE_LICENSE("GPL");
 //MODULE_LICENSE("Proprietary");
@@ -41,7 +42,9 @@ static int bufferSize = 15;
 static dev_t myChrDevid;
 static struct cdev myChrDevCdev;
 static struct class *pmyCharClass;
+static struct class *pmyCharClass2;
 static struct device *pmyCharDevice;
+static struct device *pmyCharDevice2;
 int majorNumber = 0;
 
 static int charDriverOpen(struct inode *inodep, struct file *filep);
@@ -157,10 +160,14 @@ static int __init charDriverEntry()
 
 
 	// Now we will create class for this device
-	pmyCharClass = class_create(THIS_MODULE,CLASS_NAME);
+	pmyCharClass = class_create(THIS_MODULE, CLASS_NAME);
+	pmyCharClass2 = class_create(THIS_MODULE, CLASS_NAME2);
+
 	printk(KERN_INFO "Class created!\n");
 	
-	pmyCharDevice = device_create(pmyCharClass, NULL, MKDEV(majorNumber,0),NULL,DEVICE_NAME);
+	pmyCharDevice = device_create(pmyCharClass, NULL, MKDEV(majorNumber,0), NULL, DEVICE_NAME);
+	pmyCharDevice2 = device_create(pmyCharClass2, NULL, MKDEV(majorNumber,0), NULL, DEVICE_NAME);
+
 	printk(KERN_INFO "Device created!\n");
 	
 	/* We now have created the class and we have aquired major numer. But we have not yet tied out created fileops with anything. 
@@ -169,17 +176,20 @@ static int __init charDriverEntry()
 	printk(KERN_INFO "Now We will create the attribute entry in sysfs\n");
 	/* the function used is device_create_file(struct device *, struct device_attribute*) */
 	device_create_file(pmyCharDevice, &dev_attr_ShowData);		// The second argumnet is the structure created by the DEVICE_ATTR macro
-	device_create_file(pmyCharDevice, &dev_attr_Buffer);
+	device_create_file(pmyCharDevice2, &dev_attr_Buffer);
 	return 0;
 }
 
 static void __exit charDriverExit()
 {
-	device_remove_file(pmyCharDevice, &dev_attr_Buffer);
+	device_remove_file(pmyCharDevice2, &dev_attr_Buffer);
 	device_remove_file(pmyCharDevice, &dev_attr_ShowData);
-	device_destroy(pmyCharClass, MKDEV(majorNumber,0));
+	device_destroy(pmyCharClass, MKDEV(majorNumber, 0));
+	device_destroy(pmyCharClass, MKDEV(majorNumber, 0));
 	class_unregister(pmyCharClass);
+	class_unregister(pmyCharClass2);
 	class_destroy(pmyCharClass);
+	class_destroy(pmyCharClass2);
 	unregister_chrdev(majorNumber,DEVICE_NAME);
 	printk(KERN_INFO "Unmounting module done !\n");
 }
