@@ -147,12 +147,7 @@ static int __init charDriverEntry()
 	cdev_init(&myChrDevCdev,&fops);
 	/* this function inits the c_dev structure with memset 0 and then does basic konject setup and then adds fops to cdev struct*/
 
-	returnValue = cdev_add(&myChrDevCdev, myChrDevid, 1);
-	if (returnValue < 0)
-	{
-		printk(KERN_ALERT "Failed to add chdev \n");
-		return -1;
-	}
+	
 	/* this function adds the cdev to the kernel structure so that it becomes available for the users to use it */
 
 
@@ -163,6 +158,12 @@ static int __init charDriverEntry()
 	pmyCharDevice = device_create(pmyCharClass, NULL, MKDEV(majorNumber,0),NULL,DEVICE_NAME);
 	printk(KERN_INFO "Device created!\n");
 	
+	returnValue = cdev_add(&myChrDevCdev, myChrDevid, 1);
+	if (returnValue < 0)
+	{
+		printk(KERN_ALERT "Failed to add chdev \n");
+		return -1;
+	}
 	/* We now have created the class and we have aquired major numer. But we have not yet tied out created fileops with anything. 
 		We will do that now */
 	//returnValue = cdev_init(cdev)		
