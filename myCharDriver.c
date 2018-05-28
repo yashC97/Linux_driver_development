@@ -39,7 +39,7 @@ static char *bufferMemory;
 static int bufferPointer;
 static int bufferSize = 15;
 static dev_t myChrDevid;
-static struct cdev myChrDevCdev;
+static struct cdev *myChrDevCdev;
 static struct class *pmyCharClass;
 static struct device *pmyCharDevice;
 int majorNumber = 0;
@@ -144,8 +144,11 @@ static int __init charDriverEntry()
 	}
 	printk(KERN_INFO "Aquired Major Number! : %d\n", MAJOR(myChrDevid));
 	
-	cdev_init(&myChrDevCdev,&fops);
-	/* this function inits the c_dev structure with memset 0 and then does basic konject setup and then adds fops to cdev struct*/
+	//cdev_init(&myChrDevCdev,&fops);
+	myChrDevCdev = cdev_alloc();
+        cdev_init(myChrDevCdev,&fops);
+        myChrDevCdev->owner = THIS_MODULE;
+        //myChrDevCdev->ops = &fops;/* this function inits the c_dev structure with memset 0 and then does basic konject setup and then adds fops to cdev struct*/
 
 	
 	/* this function adds the cdev to the kernel structure so that it becomes available for the users to use it */
@@ -158,7 +161,7 @@ static int __init charDriverEntry()
 	pmyCharDevice = device_create(pmyCharClass, NULL, MKDEV(majorNumber,0),NULL,DEVICE_NAME);
 	printk(KERN_INFO "Device created!\n");
 	
-	returnValue = cdev_add(&myChrDevCdev, myChrDevid, 1);
+	returnValue = cdev_add(myChrDevCdev, myChrDevid, 1);
 	if (returnValue < 0)
 	{
 		printk(KERN_ALERT "Failed to add chdev \n");
@@ -182,8 +185,9 @@ static void __exit charDriverExit()
 	class_unregister(pmyCharClass);
 	class_destroy(pmyCharClass);
 	//unregister_chrdev(majorNumber,DEVICE_NAME);
-	cdev_del(&myChrDevCdev);
+	cdev_del(myChrDevCdev);
 	unregister_chrdev_region(myChrDevid, 1);
+	kfree(myChrDevCdev);
 	printk(KERN_INFO "Unmounting module done !\n");
 }
 
