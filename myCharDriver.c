@@ -146,6 +146,12 @@ static int __init charDriverEntry()
 	
 	//cdev_init(&myChrDevCdev,&fops);
 	myChrDevCdev = cdev_alloc();
+	if (IS_ERR(myChrDevCdev))
+	{
+		printk(KERN_ALERT "Failed to allocate space for CharDev struct\n");
+		unregister_chrdev_region(myChrDevid, 1);
+		return -1;
+	}
         cdev_init(myChrDevCdev,&fops);
         myChrDevCdev->owner = THIS_MODULE;
         //myChrDevCdev->ops = &fops;/* this function inits the c_dev structure with memset 0 and then does basic konject setup and then adds fops to cdev struct*/
@@ -156,9 +162,27 @@ static int __init charDriverEntry()
 
 	// Now we will create class for this device
 	pmyCharClass = class_create(THIS_MODULE,CLASS_NAME);
+	if (IS_ERR(pmyCharClass))
+	{
+		printk(KERN_ALERT "Failed to Register Class\n");
+		cdev_del(myChrDevCdev);
+		kfree(myChrDevCdev);
+		unregister_chrdev_region(myChrDevid, 1);
+		return -1;
+	}
 	printk(KERN_INFO "Class created!\n");
 	
 	pmyCharDevice = device_create(pmyCharClass, NULL, MKDEV(majorNumber,0),NULL,DEVICE_NAME);
+	if (IS_ERR(pmyCharDevice))
+	{
+		printk(KERN_ALERT "Failed to Register Class\n");
+		class_unregister(pmyCharClass);
+		class_destroy(pmyCharClass);
+		cdev_del(myChrDevCdev);
+		kfree(myChrDevCdev);
+		unregister_chrdev_region(myChrDevid, 1);
+		return -1;
+	}
 	printk(KERN_INFO "Device created!\n");
 	
 	returnValue = cdev_add(myChrDevCdev, myChrDevid, 1);
