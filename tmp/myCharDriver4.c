@@ -124,15 +124,15 @@ static int __init charDriverEntry()
 	}
 	printk(KERN_INFO "Aquired Major Number! : %d\n",majorNumber);
 	// Now we will create class for this device
-	//pmyCharClass = class_create(THIS_MODULE,CLASS_NAME);
+	pmyCharClass = class_create(THIS_MODULE,CLASS_NAME);
 	printk(KERN_INFO "Class created!\n");
 	// check for error | Not added here will add later 
-	//pmyCharDevice = device_create(pmyCharClass, NULL, MKDEV(majorNumber,0),NULL,DEVICE_NAME);
+	pmyCharDevice = device_create(pmyCharClass, NULL, MKDEV(majorNumber,0),NULL,DEVICE_NAME);
 	printk(KERN_INFO "Device created!\n");
 	printk(KERN_INFO "Now We will create the attribute entry in sysfs\n");
 	/* the function used is device_create_file(struct device *, struct device_attribute*) */
-	//device_create_file(pmyCharDevice, &dev_attr_ShowData);		// The second argumnet is the structure created by the DEVICE_ATTR macro
-	//device_create_file(pmyCharDevice, &dev_attr_Buffer);
+	device_create_file(pmyCharDevice, &dev_attr_ShowData);		// The second argumnet is the structure created by the DEVICE_ATTR macro
+	device_create_file(pmyCharDevice, &dev_attr_Buffer);
 	return 0;
 }
 
