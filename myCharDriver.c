@@ -40,7 +40,7 @@ static char *bufferMemory;
 static int bufferPointer;
 static int bufferSize = 15;
 static dev_t myChrDevid;
-static struct cdev myChrDevCdev;
+static struct cdev *myChrDevCdev;
 static struct class *pmyCharClass;
 static struct class *pmyCharClass2;
 static struct device *pmyCharDevice;
@@ -136,7 +136,7 @@ static int __init charDriverEntry()
 	int returnValue;
 	//majorNumber = register_chrdev(0, DEVICE_NAME, &fops);
 	
-	returnValue = alloc_chrdev_region(&myChrDevid, 0, 1, DEVICE_NAME); 
+	returnValue = alloc_chrdev_region(&myChrDevid, 0, 2, DEVICE_NAME); 
 	/* This function takes 4 arguments - dev_t address, start of minor number, range/count of minor number, Name; Note - unlike register_chrdev fops have not
 		yet been tied to the major number */
 	
@@ -147,10 +147,13 @@ static int __init charDriverEntry()
 	}
 	printk(KERN_INFO "Aquired Major Number! : %d\n", MAJOR(myChrDevid));
 	
-	cdev_init(&myChrDevCdev,&fops);
+	myChrDevCdev = cdev_alloc();
+	cdev_init(myChrDevCdev,&fops);
+	myChrDevCdev->owner = THIS_MODULE;
+	myChrDevCdev->ops = &fops;
 	/* this function inits the c_dev structure with memset 0 and then does basic konject setup and then adds fops to cdev struct*/
 
-	returnValue = cdev_add(&myChrDevCdev, myChrDevid, 1);
+	returnValue = cdev_add(myChrDevCdev, myChrDevid, 2);
 	if (returnValue < 0)
 	{
 		printk(KERN_ALERT "Failed to add chdev \n");
@@ -166,7 +169,7 @@ static int __init charDriverEntry()
 	printk(KERN_INFO "Class created!\n");
 	
 	pmyCharDevice = device_create(pmyCharClass, NULL, MKDEV(majorNumber,0), NULL, DEVICE_NAME);
-	pmyCharDevice2 = device_create(pmyCharClass2, NULL, MKDEV(majorNumber,0), NULL, DEVICE_NAME);
+	pmyCharDevice2 = device_create(pmyCharClass2, NULL, MKDEV(majorNumber,1), NULL, DEVICE_NAME);
 
 	printk(KERN_INFO "Device created!\n");
 	
@@ -185,12 +188,13 @@ static void __exit charDriverExit()
 	device_remove_file(pmyCharDevice2, &dev_attr_Buffer);
 	device_remove_file(pmyCharDevice, &dev_attr_ShowData);
 	device_destroy(pmyCharClass, MKDEV(majorNumber, 0));
-	device_destroy(pmyCharClass, MKDEV(majorNumber, 0));
+	device_destroy(pmyCharClass2, MKDEV(majorNumber, 1));
 	class_unregister(pmyCharClass);
 	class_unregister(pmyCharClass2);
 	class_destroy(pmyCharClass);
 	class_destroy(pmyCharClass2);
 	unregister_chrdev(majorNumber,DEVICE_NAME);
+	unregister_chrdev(majorNumber+1, DEVICE_NAME);
 	printk(KERN_INFO "Unmounting module done !\n");
 }
 
