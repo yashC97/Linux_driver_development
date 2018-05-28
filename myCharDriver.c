@@ -180,7 +180,9 @@ static void __exit charDriverExit()
 	device_destroy(pmyCharClass, MKDEV(majorNumber,0));
 	class_unregister(pmyCharClass);
 	class_destroy(pmyCharClass);
-	unregister_chrdev(majorNumber,DEVICE_NAME);
+	//unregister_chrdev(majorNumber,DEVICE_NAME);
+	cdev_del(&myChrDevCdev);
+	unregister_chrdev_region(myChrDevid, 1);
 	printk(KERN_INFO "Unmounting module done !\n");
 }
 
