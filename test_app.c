@@ -11,7 +11,7 @@ int main()
 {
 	int fp,i;
 	char c[5];
-	fp = open("/dev/myCharDriver",O_RDWR);
+	fp = open("/dev/myCharDevice",O_RDWR);
 	if (fp<0)
 		printf("Failed to open\n");
 	printf("attemptint to write 'YASH'\n");
@@ -31,8 +31,12 @@ int main()
 	printf("BufferSize : %d\nWaiting\n",sizeStruct.bufferSize);
 	getchar();
 	printf("Now Writing bufferSize to 300\n");
-	sizeStruct.bufferSize = 300;
+	sizeStruct.bufferSize = -30;
 	i = ioctl(fp, SET_BUFFER_SIZE, &sizeStruct);
+	printf("\nNow reading the buffer Size\n");
+	i = ioctl(fp, READ_BUFFER_SIZE, &sizeStruct);
+	printf("BufferSize : %d\nWaiting\n",sizeStruct.bufferSize);
+
 	close(fp);
 	return 0;
 }	

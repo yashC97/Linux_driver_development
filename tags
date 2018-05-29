@@ -1,0 +1,79 @@
+!_TAG_FILE_FORMAT	2	/extended format; --format=1 will not append ;" to lines/
+!_TAG_FILE_SORTED	1	/0=unsorted, 1=sorted, 2=foldcase/
+!_TAG_PROGRAM_AUTHOR	Darren Hiebert	/dhiebert@users.sourceforge.net/
+!_TAG_PROGRAM_NAME	Exuberant Ctags	//
+!_TAG_PROGRAM_URL	http://ctags.sourceforge.net	/official site/
+!_TAG_PROGRAM_VERSION	5.9~svn20110310	//
+CLASS_NAME	myCharDriver.c	25;"	d	file:
+CLASS_NAME	tmp/myCharDriver4.c	18;"	d	file:
+DEVICE_NAME	myCharDriver.c	23;"	d	file:
+DEVICE_NAME	tmp/myCharDriver4.c	16;"	d	file:
+IOCTRLHEADER	ioctrl.h	3;"	d
+IOCTRLHEADER	tmp/ioctrl.h	3;"	d
+MAGIC	ioctrl.h	6;"	d
+MAGIC	tmp/ioctrl.h	6;"	d
+MODULE_NAME	myCharDriver.c	24;"	d	file:
+MODULE_NAME	tmp/myCharDriver4.c	17;"	d	file:
+READ_BUFFER_SIZE	ioctrl.h	18;"	d
+READ_BUFFER_SIZE	tmp/ioctrl.h	18;"	d
+SET_BUFFER_SIZE	ioctrl.h	17;"	d
+SET_BUFFER_SIZE	tmp/ioctrl.h	17;"	d
+__this_module	myCharDriver.mod.c	/^__visible struct module __this_module$/;"	v	typeref:struct:module
+__used	myCharDriver.mod.c	/^__used$/;"	v	file:
+attrShowBuffer	myCharDriver.c	/^static ssize_t attrShowBuffer(struct device* pDev, struct device_attribute* attr, char* buffer)$/;"	f	file:
+attrShowBuffer	tmp/myCharDriver4.c	/^static ssize_t attrShowBuffer(struct device* pDev, struct device_attribute* attr, char* buffer)$/;"	f	file:
+attrShowData	myCharDriver.c	/^static ssize_t attrShowData(struct device* pDev, struct device_attribute* attr, char* buffer)$/;"	f	file:
+attrShowData	tmp/myCharDriver4.c	/^static ssize_t attrShowData(struct device* pDev, struct device_attribute* attr, char* buffer)$/;"	f	file:
+attrStoreBuffer	myCharDriver.c	/^static ssize_t attrStoreBuffer(struct device* pDev, struct device_attribute* attr, const char* buffer, size_t length)$/;"	f	file:
+attrStoreBuffer	tmp/myCharDriver4.c	/^static ssize_t attrStoreBuffer(struct device* pDev, struct device_attribute* attr, const char* buffer, size_t length)$/;"	f	file:
+attrStoreData	myCharDriver.c	/^static ssize_t attrStoreData(struct device* pDev, struct device_attribute* attr, const char* buffer, size_t length)$/;"	f	file:
+attrStoreData	tmp/myCharDriver4.c	/^static ssize_t attrStoreData(struct device* pDev, struct device_attribute* attr, const char* buffer, size_t length)$/;"	f	file:
+bufferMemory	myCharDriver.c	/^static char *bufferMemory;$/;"	v	file:
+bufferMemory	tmp/myCharDriver4.c	/^static char *bufferMemory;$/;"	v	file:
+bufferPointer	myCharDriver.c	/^static int bufferPointer;$/;"	v	file:
+bufferPointer	tmp/myCharDriver4.c	/^static int bufferPointer;$/;"	v	file:
+bufferSize	ioctrl.h	/^	int bufferSize;$/;"	m	struct:__anon2
+bufferSize	myCharDriver.c	/^static int bufferSize = 15;$/;"	v	file:
+bufferSize	tmp/ioctrl.h	/^	int bufferSize;$/;"	m	struct:__anon1
+bufferSize	tmp/myCharDriver4.c	/^static int bufferSize = 15;$/;"	v	file:
+bufferSizeStruct	ioctrl.h	/^}bufferSizeStruct;$/;"	t	typeref:struct:__anon2
+bufferSizeStruct	tmp/ioctrl.h	/^}bufferSizeStruct;$/;"	t	typeref:struct:__anon1
+charDriverClose	myCharDriver.c	/^static int charDriverClose(struct inode *inodep, struct file *filep)$/;"	f	file:
+charDriverClose	tmp/myCharDriver4.c	/^static int charDriverClose(struct inode *inodep, struct file *filep)$/;"	f	file:
+charDriverCtrl	myCharDriver.c	/^static long charDriverCtrl(struct file *filep, unsigned int command, unsigned long argument)$/;"	f	file:
+charDriverCtrl	tmp/myCharDriver4.c	/^static long charDriverCtrl(struct file *filep, unsigned int command, unsigned long argument)$/;"	f	file:
+charDriverEntry	myCharDriver.c	/^module_init(charDriverEntry);$/;"	v
+charDriverEntry	myCharDriver.c	/^static int __init charDriverEntry()$/;"	f	file:
+charDriverEntry	tmp/myCharDriver4.c	/^module_init(charDriverEntry);$/;"	v
+charDriverEntry	tmp/myCharDriver4.c	/^static int __init charDriverEntry()$/;"	f	file:
+charDriverExit	myCharDriver.c	/^module_exit(charDriverExit);$/;"	v
+charDriverExit	myCharDriver.c	/^static void __exit charDriverExit()$/;"	f	file:
+charDriverExit	tmp/myCharDriver4.c	/^module_exit(charDriverExit);$/;"	v
+charDriverExit	tmp/myCharDriver4.c	/^static void __exit charDriverExit()$/;"	f	file:
+charDriverOpen	myCharDriver.c	/^static int charDriverOpen(struct inode *inodep, struct file *filep)$/;"	f	file:
+charDriverOpen	tmp/myCharDriver4.c	/^static int charDriverOpen(struct inode *inodep, struct file *filep)$/;"	f	file:
+charDriverRead	myCharDriver.c	/^static ssize_t charDriverRead(struct file *filep, char *buffer, size_t len, loff_t *offset)$/;"	f	file:
+charDriverRead	tmp/myCharDriver4.c	/^static ssize_t charDriverRead(struct file *filep, char *buffer, size_t len, loff_t *offset)$/;"	f	file:
+charDriverWrite	myCharDriver.c	/^static ssize_t charDriverWrite(struct file *filep, const char *buffer, size_t len, loff_t *offset)$/;"	f	file:
+charDriverWrite	tmp/myCharDriver4.c	/^static ssize_t charDriverWrite(struct file *filep, const char *buffer, size_t len, loff_t *offset)$/;"	f	file:
+fops	myCharDriver.c	/^static struct file_operations fops = $/;"	v	typeref:struct:file_operations	file:
+fops	tmp/myCharDriver4.c	/^static struct file_operations fops = $/;"	v	typeref:struct:file_operations	file:
+main	test_app.c	/^int main()$/;"	f
+main	tmp/test_app.c	/^int main()$/;"	f
+majorNumber	myCharDriver.c	/^int majorNumber = 0;$/;"	v
+majorNumber	tmp/myCharDriver4.c	/^int majorNumber = 0;$/;"	v
+myChrDevCdev	myCharDriver.c	/^static struct cdev *myChrDevCdev;$/;"	v	typeref:struct:cdev	file:
+myChrDevid	myCharDriver.c	/^static dev_t myChrDevid;$/;"	v	file:
+pmyCharClass	myCharDriver.c	/^static struct class *pmyCharClass;$/;"	v	typeref:struct:class	file:
+pmyCharClass	tmp/myCharDriver4.c	/^static struct class *pmyCharClass;$/;"	v	typeref:struct:class	file:
+pmyCharDevice	myCharDriver.c	/^static struct device *pmyCharDevice;$/;"	v	typeref:struct:device	file:
+pmyCharDevice	tmp/myCharDriver4.c	/^static struct device *pmyCharDevice;$/;"	v	typeref:struct:device	file:
+query	ioctrl.h	/^enum query{$/;"	g
+query	tmp/ioctrl.h	/^enum query{$/;"	g
+readdata	ioctrl.h	/^readdata,$/;"	e	enum:query
+readdata	tmp/ioctrl.h	/^readdata,$/;"	e	enum:query
+setdata	ioctrl.h	/^setdata,$/;"	e	enum:query
+setdata	tmp/ioctrl.h	/^setdata,$/;"	e	enum:query
+sizeStruct	test_app.c	/^bufferSizeStruct sizeStruct;$/;"	v
+sizeStruct	tmp/test_app.c	/^bufferSizeStruct sizeStruct;$/;"	v
+temp	tmp/myCharDriver4.c	/^static char temp[5];$/;"	v	file:

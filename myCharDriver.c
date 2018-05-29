@@ -1,8 +1,8 @@
 /* @author : yash.bhatt
  * @Brief  : This module is an attempt to understand how the paramaters can be exposed to class fs and they can be used to modufy the behavior of the
- 	     Code. Update : Added the ioctl function and also all the laod time kernel parameter
-	     * now in this branch we will see how register_chrdev can be replaced by other functions, increasing the length of code but giving 
-		better functionality *
+ Code. Update : Added the ioctl function and also all the laod time kernel parameter
+ * now in this branch we will see how register_chrdev can be replaced by other functions, increasing the length of code but giving 
+ better functionality *
  */
 
 #include<linux/module.h>
@@ -211,11 +211,12 @@ static void __exit charDriverExit()
 
 static int charDriverOpen(struct inode *inodep, struct file *filep)
 {
-	if ((filep->f_flags & O_ACCMODE) != O_RDWR)
+/*	if ((filep->f_flags & O_ACCMODE) != O_RDWR)
 	{
 		printk(KERN_ALERT "WARNING : This driver can only be opened in both read and write mode\n");
 		return -1;
 	}
+*/
 	printk(KERN_INFO "INFO : CHARATER DRIVER OPENED\n");
 	bufferMemory = kmalloc(bufferSize,GFP_KERNEL);
 	bufferPointer = 0;
