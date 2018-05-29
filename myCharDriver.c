@@ -49,6 +49,8 @@ static ssize_t attrStoreData(struct device*, struct device_attribute*, const cha
 static ssize_t attrShowBuffer(struct device*, struct device_attribute*, char*);
 static ssize_t attrStoreBuffer(struct device*, struct device_attribute*, const char*, size_t);
 static long charDriverCtrl(struct file *filep, unsigned int command, unsigned long argument);
+static int myfasync(int fd, struct file *fp, int on);
+
 
 /* The following function is called when the file placed on the sysfs is accessed for read*/
 static ssize_t attrShowData(struct device* pDev, struct device_attribute* attr, char* buffer)
@@ -119,8 +121,9 @@ static struct file_operations fops =
 	.read = charDriverRead,
 	.write = charDriverWrite,
 	.unlocked_ioctl = charDriverCtrl,
+	.fasync = myfasync,
 };
-
+static struct fasync_struct *fasyncQueue;
 
 static int __init charDriverEntry()
 {
@@ -217,6 +220,10 @@ static int charDriverOpen(struct inode *inodep, struct file *filep)
 		return -1;
 	}
 */
+	if (bufferSize <= 0)
+	{
+		bufferSize = 15;
+	}
 	printk(KERN_INFO "INFO : CHARATER DRIVER OPENED\n");
 	bufferMemory = kmalloc(bufferSize,GFP_KERNEL);
 	bufferPointer = 0;
@@ -260,6 +267,7 @@ static long charDriverCtrl(struct file *filep, unsigned int command, unsigned lo
 {
 	bufferSizeStruct sizeStruct;
 	printk(KERN_INFO "INFO: IOCONTROL called\n");
+	kill_fasync(&fasyncQueue, SIGIO, POLL_OUT);
 	switch(command)
 	{
 		case SET_BUFFER_SIZE:
@@ -277,6 +285,12 @@ static long charDriverCtrl(struct file *filep, unsigned int command, unsigned lo
 			return -1;
 	}
 	return 0;
+}
+
+static int myfasync(int fd, struct file *fp, int on)
+{
+//	printk(KERN_INFO " fd value is : %d\n",fd);
+	return fasync_helper(fd, fp, 1, &fasyncQueue);	
 }
 
 module_init(charDriverEntry);
