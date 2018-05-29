@@ -136,7 +136,7 @@ static int __init charDriverEntry()
 	returnValue = alloc_chrdev_region(&myChrDevid, 0, 1, DEVICE_NAME); 
 	/* This function takes 4 arguments - dev_t address, start of minor number, range/count of minor number, Name; Note - unlike register_chrdev fops have not
 		yet been tied to the major number */
-	
+	majorNumber = MAJOR(myChrDevid);	
 	if (returnValue < 0)
 	{
 		printk(KERN_ALERT "ERROR : can not aquire major number! error %d",returnValue);
