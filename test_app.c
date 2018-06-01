@@ -36,7 +36,7 @@ int main()
 	fcntl(fp, F_SETOWN, getpid());
 	flagInfo = fcntl(fp, F_GETFL);
 	fcntl(fp, F_SETFL, flagInfo|FASYNC);
-
+while(1);
 	printf("attemptint to write 'YASH'\n");
 	i = write(fp,"YASH",4);
 	if (i < 4 )

@@ -4,15 +4,15 @@
 !_TAG_PROGRAM_NAME	Exuberant Ctags	//
 !_TAG_PROGRAM_URL	http://ctags.sourceforge.net	/official site/
 !_TAG_PROGRAM_VERSION	5.9~svn20110310	//
-CLASS_NAME	myCharDriver.c	25;"	d	file:
+CLASS_NAME	myCharDriver.c	26;"	d	file:
 CLASS_NAME	tmp/myCharDriver4.c	18;"	d	file:
-DEVICE_NAME	myCharDriver.c	23;"	d	file:
+DEVICE_NAME	myCharDriver.c	24;"	d	file:
 DEVICE_NAME	tmp/myCharDriver4.c	16;"	d	file:
 IOCTRLHEADER	ioctrl.h	3;"	d
 IOCTRLHEADER	tmp/ioctrl.h	3;"	d
 MAGIC	ioctrl.h	6;"	d
 MAGIC	tmp/ioctrl.h	6;"	d
-MODULE_NAME	myCharDriver.c	24;"	d	file:
+MODULE_NAME	myCharDriver.c	25;"	d	file:
 MODULE_NAME	tmp/myCharDriver4.c	17;"	d	file:
 READ_BUFFER_SIZE	ioctrl.h	18;"	d
 READ_BUFFER_SIZE	tmp/ioctrl.h	18;"	d
@@ -56,6 +56,7 @@ charDriverRead	myCharDriver.c	/^static ssize_t charDriverRead(struct file *filep
 charDriverRead	tmp/myCharDriver4.c	/^static ssize_t charDriverRead(struct file *filep, char *buffer, size_t len, loff_t *offset)$/;"	f	file:
 charDriverWrite	myCharDriver.c	/^static ssize_t charDriverWrite(struct file *filep, const char *buffer, size_t len, loff_t *offset)$/;"	f	file:
 charDriverWrite	tmp/myCharDriver4.c	/^static ssize_t charDriverWrite(struct file *filep, const char *buffer, size_t len, loff_t *offset)$/;"	f	file:
+fasyncQueue	myCharDriver.c	/^static struct fasync_struct *fasyncQueue;$/;"	v	typeref:struct:fasync_struct	file:
 fops	myCharDriver.c	/^static struct file_operations fops = $/;"	v	typeref:struct:file_operations	file:
 fops	tmp/myCharDriver4.c	/^static struct file_operations fops = $/;"	v	typeref:struct:file_operations	file:
 main	test_app.c	/^int main()$/;"	f
@@ -64,6 +65,8 @@ majorNumber	myCharDriver.c	/^int majorNumber = 0;$/;"	v
 majorNumber	tmp/myCharDriver4.c	/^int majorNumber = 0;$/;"	v
 myChrDevCdev	myCharDriver.c	/^static struct cdev *myChrDevCdev;$/;"	v	typeref:struct:cdev	file:
 myChrDevid	myCharDriver.c	/^static dev_t myChrDevid;$/;"	v	file:
+my_notifier	test_app.c	/^void my_notifier(int signo, siginfo_t *sigInfo, void *data)$/;"	f
+myfasync	myCharDriver.c	/^static int myfasync(int fd, struct file *fp, int on)$/;"	f	file:
 pmyCharClass	myCharDriver.c	/^static struct class *pmyCharClass;$/;"	v	typeref:struct:class	file:
 pmyCharClass	tmp/myCharDriver4.c	/^static struct class *pmyCharClass;$/;"	v	typeref:struct:class	file:
 pmyCharDevice	myCharDriver.c	/^static struct device *pmyCharDevice;$/;"	v	typeref:struct:device	file:
@@ -72,8 +75,10 @@ query	ioctrl.h	/^enum query{$/;"	g
 query	tmp/ioctrl.h	/^enum query{$/;"	g
 readdata	ioctrl.h	/^readdata,$/;"	e	enum:query
 readdata	tmp/ioctrl.h	/^readdata,$/;"	e	enum:query
+send_signal_timerfn	myCharDriver.c	/^static void send_signal_timerfn(unsigned long data)$/;"	f	file:
 setdata	ioctrl.h	/^setdata,$/;"	e	enum:query
 setdata	tmp/ioctrl.h	/^setdata,$/;"	e	enum:query
 sizeStruct	test_app.c	/^bufferSizeStruct sizeStruct;$/;"	v
 sizeStruct	tmp/test_app.c	/^bufferSizeStruct sizeStruct;$/;"	v
 temp	tmp/myCharDriver4.c	/^static char temp[5];$/;"	v	file:
+timer	myCharDriver.c	/^static struct timer_list timer;$/;"	v	typeref:struct:timer_list	file:

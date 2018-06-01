@@ -3,6 +3,7 @@
  Code. Update : Added the ioctl function and also all the laod time kernel parameter
  * now in this branch we will see how register_chrdev can be replaced by other functions, increasing the length of code but giving 
  better functionality *
+1-06-18 Friday : Adding timer feature to test it with async !
  */
 
 #include<linux/module.h>
@@ -18,7 +19,7 @@
 #include <linux/version.h>
 #include <linux/types.h>
 #include <linux/kdev_t.h>
-
+#include<linux/timer.h>
 
 #define DEVICE_NAME "myCharDevice"
 #define MODULE_NAME "myCharDriver"
@@ -36,6 +37,7 @@ static dev_t myChrDevid;
 static struct cdev *myChrDevCdev;
 static struct class *pmyCharClass;
 static struct device *pmyCharDevice;
+static struct timer_list timer;
 int majorNumber = 0;
 
 static int charDriverOpen(struct inode *inodep, struct file *filep);
@@ -50,7 +52,7 @@ static ssize_t attrShowBuffer(struct device*, struct device_attribute*, char*);
 static ssize_t attrStoreBuffer(struct device*, struct device_attribute*, const char*, size_t);
 static long charDriverCtrl(struct file *filep, unsigned int command, unsigned long argument);
 static int myfasync(int fd, struct file *fp, int on);
-
+static void send_signal_timerfn(unsigned long data);
 
 /* The following function is called when the file placed on the sysfs is accessed for read*/
 static ssize_t attrShowData(struct device* pDev, struct device_attribute* attr, char* buffer)
@@ -220,6 +222,8 @@ static int charDriverOpen(struct inode *inodep, struct file *filep)
 		return -1;
 	}
 */
+	unsigned long current_jiffy = jiffies;
+	unsigned long delta = 100;
 	if (bufferSize <= 0)
 	{
 		bufferSize = 15;
@@ -227,11 +231,16 @@ static int charDriverOpen(struct inode *inodep, struct file *filep)
 	printk(KERN_INFO "INFO : CHARATER DRIVER OPENED\n");
 	bufferMemory = kmalloc(bufferSize,GFP_KERNEL);
 	bufferPointer = 0;
+	timer.function = send_signal_timerfn;
+	timer.expires = current_jiffy + delta;
+	add_timer(&timer);
+	printk(KERN_INFO "timer setup \n");
 	return 0;	
 }
 
 static int charDriverClose(struct inode *inodep, struct file *filep)
 {
+	del_timer(&timer);
 	kfree(bufferMemory);
 	printk(KERN_INFO "INFO : CHARACTER DRIVER CLOSED\n");
 	return 0;
@@ -267,7 +276,7 @@ static long charDriverCtrl(struct file *filep, unsigned int command, unsigned lo
 {
 	bufferSizeStruct sizeStruct;
 	printk(KERN_INFO "INFO: IOCONTROL called\n");
-	kill_fasync(&fasyncQueue, SIGIO, POLL_OUT);
+//	kill_fasync(&fasyncQueue, SIGIO, POLL_OUT);
 	switch(command)
 	{
 		case SET_BUFFER_SIZE:
@@ -291,6 +300,14 @@ static int myfasync(int fd, struct file *fp, int on)
 {
 //	printk(KERN_INFO " fd value is : %d\n",fd);
 	return fasync_helper(fd, fp, 1, &fasyncQueue);	
+}
+
+static void send_signal_timerfn(unsigned long data)
+{
+	unsigned long current_jiff = jiffies;
+	mod_timer(&timer, current_jiff + 100);
+	printk(KERN_INFO "timer expired \n");
+	kill_fasync(&fasyncQueue, SIGIO, POLL_OUT);
 }
 
 module_init(charDriverEntry);
