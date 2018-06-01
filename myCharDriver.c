@@ -30,7 +30,7 @@ MODULE_AUTHOR("YASH BHATT");
 MODULE_VERSION(".01");
 
 static char *bufferMemory;
-static int bufferPointer;
+static int bufferPointer = 0;
 static int bufferSize = 15;
 static dev_t myChrDevid;
 static struct cdev *myChrDevCdev;
@@ -219,7 +219,7 @@ static int charDriverOpen(struct inode *inodep, struct file *filep)
 */
 	printk(KERN_INFO "INFO : CHARATER DRIVER OPENED\n");
 	bufferMemory = kmalloc(bufferSize,GFP_KERNEL);
-	bufferPointer = 0;
+	//bufferPointer;
 	return 0;	
 }
 
@@ -246,15 +246,20 @@ static ssize_t charDriverWrite(struct file *filep, const char *buffer, size_t le
 
 static ssize_t charDriverRead(struct file *filep, char *buffer, size_t len, loff_t *offset)
 {
-	if(len > bufferSize || len > bufferPointer)
+	int length_to_read;
+	if (len < bufferPointer)
+		length_to_read = len;
+	else
+		length_to_read = bufferPointer;
+/*	if(len > bufferSize || len > bufferPointer)
 	{
 		printk(KERN_WARNING "Attempting to read more than buffer size ! Deny\n");
 		return 0;
-	}
-	copy_to_user(buffer, bufferMemory, len);
+	}*/
+	length_to_read = copy_to_user(buffer, bufferMemory, length_to_read);
 //	buffer[0] = bufferMemory[0];
-	bufferPointer -= len;
-	return len;
+	bufferPointer = 0;
+	return length_to_read;
 }
 static long charDriverCtrl(struct file *filep, unsigned int command, unsigned long argument)
 {
