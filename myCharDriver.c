@@ -38,6 +38,9 @@ static struct cdev *myChrDevCdev;
 static struct class *pmyCharClass;
 static struct device *pmyCharDevice;
 static struct timer_list timer;
+static wait_queue_head_t waitQueue; 
+static int in_sleep = 0;
+static volatile int wake_up = 5;
 int majorNumber = 0;
 
 static int charDriverOpen(struct inode *inodep, struct file *filep);
@@ -130,6 +133,8 @@ static struct fasync_struct *fasyncQueue;
 static int __init charDriverEntry()
 {
 	int returnValue;
+	unsigned long current_jiffy = jiffies;
+	unsigned long delta = 100;
 	//majorNumber = register_chrdev(0, DEVICE_NAME, &fops);
 	
 	returnValue = alloc_chrdev_region(&myChrDevid, 0, 1, DEVICE_NAME); 
@@ -197,6 +202,9 @@ static int __init charDriverEntry()
 	/* the function used is device_create_file(struct device *, struct device_attribute*) */
 	device_create_file(pmyCharDevice, &dev_attr_ShowData);		// The second argumnet is the structure created by the DEVICE_ATTR macro
 	device_create_file(pmyCharDevice, &dev_attr_Buffer);
+	timer.function = send_signal_timerfn;
+	timer.expires = current_jiffy + delta;
+	init_waitqueue_head(&waitQueue);
 	return 0;
 }
 
@@ -222,8 +230,6 @@ static int charDriverOpen(struct inode *inodep, struct file *filep)
 		return -1;
 	}
 */
-	unsigned long current_jiffy = jiffies;
-	unsigned long delta = 100;
 	if (bufferSize <= 0)
 	{
 		bufferSize = 15;
@@ -231,8 +237,8 @@ static int charDriverOpen(struct inode *inodep, struct file *filep)
 	printk(KERN_INFO "INFO : CHARATER DRIVER OPENED\n");
 	bufferMemory = kmalloc(bufferSize,GFP_KERNEL);
 	bufferPointer = 0;
-	timer.function = send_signal_timerfn;
-	timer.expires = current_jiffy + delta;
+	wake_up = 5;
+	in_sleep = 0;
 	add_timer(&timer);
 	printk(KERN_INFO "timer setup \n");
 	return 0;	
@@ -274,6 +280,7 @@ static ssize_t charDriverRead(struct file *filep, char *buffer, size_t len, loff
 }
 static long charDriverCtrl(struct file *filep, unsigned int command, unsigned long argument)
 {
+	int returnVal;
 	bufferSizeStruct sizeStruct;
 	printk(KERN_INFO "INFO: IOCONTROL called\n");
 //	kill_fasync(&fasyncQueue, SIGIO, POLL_OUT);
@@ -289,25 +296,51 @@ static long charDriverCtrl(struct file *filep, unsigned int command, unsigned lo
 			copy_to_user((bufferSizeStruct *)argument, &sizeStruct, sizeof(bufferSizeStruct));
 			printk(KERN_INFO "INFO: BufferSize passed to user\n");
 			break;
+		case GO_TO_SLEEP:
+			printk("Going to sleep \n");
+			in_sleep = 1;
+			printk("value of wake_up before going to sleep %d\n",wake_up);
+			//returnVal = wait_event_interruptible(waitQueue, !wake_up);
+			wait_event(waitQueue, !wake_up);
+			printk("I have woken up returnVal = %d!\n",returnVal);
+			del_timer(&timer);
+			wake_up = 5;
+			break;
 		default:
 			printk(KERN_WARNING "WARNING: Invalid IOCTRL ARGUMENT!\n");
 			return -1;
 	}
+	printk("outside the switch already \n");
 	return 0;
 }
 
 static int myfasync(int fd, struct file *fp, int on)
 {
 //	printk(KERN_INFO " fd value is : %d\n",fd);
+
 	return fasync_helper(fd, fp, 1, &fasyncQueue);	
 }
 
 static void send_signal_timerfn(unsigned long data)
-{
+{	
+
 	unsigned long current_jiff = jiffies;
 	mod_timer(&timer, current_jiff + 100);
 	printk(KERN_INFO "timer expired \n");
 	kill_fasync(&fasyncQueue, SIGIO, POLL_OUT);
+	if (in_sleep == 1)
+	{
+		printk(KERN_INFO "in the timer callback with sleep on wake_up : %d\n", wake_up);
+		wake_up--;
+		if (!wake_up)
+			{
+				//del_timer(&timer);
+				printk(KERN_INFO "now going to wake my self up\n");
+				wake_up(&waitQueue);
+				//return;
+				//wake_up_interruptible(&waitQueue);
+			}
+	}
 }
 
 module_init(charDriverEntry);
