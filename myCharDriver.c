@@ -217,6 +217,7 @@ static void __exit charDriverExit()
 	cdev_del(myChrDevCdev);
 	unregister_chrdev_region(myChrDevid, 1);
 	kfree(myChrDevCdev);
+	kfree(MyTask);
 	printk(KERN_INFO "Unmounting module done !\n");
 }
 
@@ -307,7 +308,7 @@ static long charDriverCtrl(struct file *filep, unsigned int command, unsigned lo
 			break;
 		case ADD_TO_QUEUE:
 			printk("Adding work to queue\n");
-			schedule_delayed_work(MyTask, 100);
+			schedule_delayed_work(MyTask, 1000);
 			exit_now = 0;
 			break;
 		case REMOVE_TASK_FROM_QUEUE:
@@ -352,7 +353,7 @@ static void send_signal_timerfn(struct work_struct *work)
 			}
 	}
 	if (!exit_now)
-		schedule_delayed_work(MyTask, 100);
+		schedule_delayed_work(MyTask, 1000);
 }
 
 module_init(charDriverEntry);

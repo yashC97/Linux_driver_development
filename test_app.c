@@ -43,7 +43,7 @@ int main()
 	fcntl(fp, F_SETOWN, getpid());
 	flagInfo = fcntl(fp, F_GETFL);
 	fcntl(fp, F_SETFL, flagInfo|FASYNC);
-	sleep(5);
+	//sleep(5);
 	printf("Scheduling work queue\n");
 	ioctl(fp, ADD_TO_QUEUE );
 	//printf("Sending the drive to sleep for a while \n");
