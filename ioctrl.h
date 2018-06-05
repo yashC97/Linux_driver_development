@@ -10,6 +10,7 @@ setdata,
 readdata,
 sleepdriver,
 addTask,
+removeTask,
 };
 
 typedef struct{
@@ -20,3 +21,4 @@ typedef struct{
 #define READ_BUFFER_SIZE _IOR(MAGIC, readdata, bufferSizeStruct *)
 #define GO_TO_SLEEP	_IO(MAGIC, sleepdriver)
 #define ADD_TO_QUEUE	_IO(MAGIC, addTask)
+#define REMOVE_TASK_FROM_QUEUE _IO(MAGIC, removeTask)

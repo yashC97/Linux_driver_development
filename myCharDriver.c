@@ -39,6 +39,7 @@ static struct cdev *myChrDevCdev;
 static struct class *pmyCharClass;
 static struct device *pmyCharDevice;
 static wait_queue_head_t waitQueue; 
+static int exit_now = 0;
 static struct delayed_work *MyTask;
 static int in_sleep = 0;
 static volatile int wake_up = 5;
@@ -307,6 +308,12 @@ static long charDriverCtrl(struct file *filep, unsigned int command, unsigned lo
 		case ADD_TO_QUEUE:
 			printk("Adding work to queue\n");
 			schedule_delayed_work(MyTask, 100);
+			exit_now = 0;
+			break;
+		case REMOVE_TASK_FROM_QUEUE:
+			exit_now = 1;
+			cancel_delayed_work_sync(MyTask);
+			printk("Removing task from queue\n");
 			break;
 		default:
 			printk(KERN_WARNING "WARNING: Invalid IOCTRL ARGUMENT!\n");
@@ -344,7 +351,8 @@ static void send_signal_timerfn(struct work_struct *work)
 				//wake_up_interruptible(&waitQueue);
 			}
 	}
-	schedule_delayed_work(MyTask, 100);
+	if (!exit_now)
+		schedule_delayed_work(MyTask, 100);
 }
 
 module_init(charDriverEntry);

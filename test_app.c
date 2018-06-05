@@ -7,12 +7,19 @@
 #include<signal.h>
 
 bufferSizeStruct sizeStruct;
+int fp;
 
 void my_notifier(int signo, siginfo_t *sigInfo, void *data)
 {
 	printf("Signal received from the driver expected %d got %d \n",SIGIO,signo);
 }
 
+void my_signal(int p)
+{
+	ioctl(fp, REMOVE_TASK_FROM_QUEUE );
+	close(fp);
+	exit(0);
+}
 int main()
 {
 	struct sigaction signalInfo;
@@ -23,9 +30,9 @@ int main()
 	sigemptyset(&signalInfo.sa_mask);
 	
 	sigaction(SIGIO, &signalInfo, NULL);
-	
+	signal(SIGINT, my_signal);
 
-	int fp,i;
+	int i;
 	char c[5];
 	fp = open("/dev/myCharDevice",O_RDWR);
 	if (fp<0)
