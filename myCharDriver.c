@@ -20,6 +20,7 @@
 #include <linux/types.h>
 #include <linux/kdev_t.h>
 #include<linux/timer.h>
+#include<linux/workqueue.h>
 
 #define DEVICE_NAME "myCharDevice"
 #define MODULE_NAME "myCharDriver"
@@ -37,8 +38,8 @@ static dev_t myChrDevid;
 static struct cdev *myChrDevCdev;
 static struct class *pmyCharClass;
 static struct device *pmyCharDevice;
-static struct timer_list timer;
 static wait_queue_head_t waitQueue; 
+static struct delayed_work *MyTask;
 static int in_sleep = 0;
 static volatile int wake_up = 5;
 int majorNumber = 0;
@@ -55,7 +56,7 @@ static ssize_t attrShowBuffer(struct device*, struct device_attribute*, char*);
 static ssize_t attrStoreBuffer(struct device*, struct device_attribute*, const char*, size_t);
 static long charDriverCtrl(struct file *filep, unsigned int command, unsigned long argument);
 static int myfasync(int fd, struct file *fp, int on);
-static void send_signal_timerfn(unsigned long data);
+static void send_signal_timerfn(struct work_struct *work);
 
 /* The following function is called when the file placed on the sysfs is accessed for read*/
 static ssize_t attrShowData(struct device* pDev, struct device_attribute* attr, char* buffer)
@@ -85,11 +86,9 @@ static ssize_t attrShowBuffer(struct device* pDev, struct device_attribute* attr
 	int temp = bufferSize;
 	char bufferSizeArray[4] = {0};
 	counter = 3;
-	//printk(KERN_INFO "Buffer = %d\n",bufferSize % 10);
 	do
 	{
 		bufferSizeArray[counter] = '0' + (bufferSize % 10);
-		//printk(KERN_INFO "Character at %d is : %c\n",counter,bufferSizeArray[counter]);
 		bufferSize /= 10;
 		counter--;
 	}
@@ -133,9 +132,8 @@ static struct fasync_struct *fasyncQueue;
 static int __init charDriverEntry()
 {
 	int returnValue;
-	unsigned long current_jiffy = jiffies;
-	unsigned long delta = 100;
-	//majorNumber = register_chrdev(0, DEVICE_NAME, &fops);
+	//unsigned long current_jiffy = jiffies;
+	//unsigned long delta = 100;
 	
 	returnValue = alloc_chrdev_region(&myChrDevid, 0, 1, DEVICE_NAME); 
 	/* This function takes 4 arguments - dev_t address, start of minor number, range/count of minor number, Name; Note - unlike register_chrdev fops have not
@@ -197,14 +195,13 @@ static int __init charDriverEntry()
 	}
 	/* We now have created the class and we have aquired major numer. But we have not yet tied out created fileops with anything. 
 		We will do that now */
-	//returnValue = cdev_init(cdev)		
 	printk(KERN_INFO "Now We will create the attribute entry in sysfs\n");
 	/* the function used is device_create_file(struct device *, struct device_attribute*) */
 	device_create_file(pmyCharDevice, &dev_attr_ShowData);		// The second argumnet is the structure created by the DEVICE_ATTR macro
 	device_create_file(pmyCharDevice, &dev_attr_Buffer);
-	timer.function = send_signal_timerfn;
-	timer.expires = current_jiffy + delta;
 	init_waitqueue_head(&waitQueue);
+	MyTask = kmalloc(sizeof(struct delayed_work), GFP_KERNEL);
+	INIT_DELAYED_WORK(MyTask, send_signal_timerfn);
 	return 0;
 }
 
@@ -239,14 +236,14 @@ static int charDriverOpen(struct inode *inodep, struct file *filep)
 	bufferPointer = 0;
 	wake_up = 5;
 	in_sleep = 0;
-	add_timer(&timer);
+	//add_timer(&timer);
 	printk(KERN_INFO "timer setup \n");
 	return 0;	
 }
 
 static int charDriverClose(struct inode *inodep, struct file *filep)
 {
-	del_timer(&timer);
+	//del_timer(&timer);
 	kfree(bufferMemory);
 	printk(KERN_INFO "INFO : CHARACTER DRIVER CLOSED\n");
 	return 0;
@@ -302,9 +299,14 @@ static long charDriverCtrl(struct file *filep, unsigned int command, unsigned lo
 			printk("value of wake_up before going to sleep %d\n",wake_up);
 			//returnVal = wait_event_interruptible(waitQueue, !wake_up);
 			wait_event(waitQueue, !wake_up);
+			returnVal = 0xA5A5;
 			printk("I have woken up returnVal = %d!\n",returnVal);
-			del_timer(&timer);
+			//del_timer(&timer);
 			wake_up = 5;
+			break;
+		case ADD_TO_QUEUE:
+			printk("Adding work to queue\n");
+			schedule_delayed_work(MyTask, 100);
 			break;
 		default:
 			printk(KERN_WARNING "WARNING: Invalid IOCTRL ARGUMENT!\n");
@@ -321,11 +323,12 @@ static int myfasync(int fd, struct file *fp, int on)
 	return fasync_helper(fd, fp, 1, &fasyncQueue);	
 }
 
-static void send_signal_timerfn(unsigned long data)
+//static void send_signal_timerfn(unsigned long data)
+static void send_signal_timerfn(struct work_struct *work)
 {	
 
-	unsigned long current_jiff = jiffies;
-	mod_timer(&timer, current_jiff + 100);
+	//unsigned long current_jiff = jiffies;
+//	mod_timer(&timer, current_jiff + 100);
 	printk(KERN_INFO "timer expired \n");
 	kill_fasync(&fasyncQueue, SIGIO, POLL_OUT);
 	if (in_sleep == 1)
@@ -341,6 +344,7 @@ static void send_signal_timerfn(unsigned long data)
 				//wake_up_interruptible(&waitQueue);
 			}
 	}
+	schedule_delayed_work(MyTask, 100);
 }
 
 module_init(charDriverEntry);

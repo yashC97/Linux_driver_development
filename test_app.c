@@ -37,8 +37,10 @@ int main()
 	flagInfo = fcntl(fp, F_GETFL);
 	fcntl(fp, F_SETFL, flagInfo|FASYNC);
 	sleep(5);
-	printf("Sending the drive to sleep for a while \n");
-	ioctl(fp, GO_TO_SLEEP);
+	printf("Scheduling work queue\n");
+	ioctl(fp, ADD_TO_QUEUE );
+	//printf("Sending the drive to sleep for a while \n");
+	//ioctl(fp, GO_TO_SLEEP);
 	while(1);
 	printf("attemptint to write 'YASH'\n");
 	i = write(fp,"YASH",4);
